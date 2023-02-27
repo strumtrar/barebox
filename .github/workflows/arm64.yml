@@ -26,7 +26,7 @@ jobs:
 
       - if: ${{ steps.cache-build.outputs.cache-hit != 'true' }}
         continue-on-error: true
-        run: ls -la
+        run: ls
 
       - name: Install Tools
         run: |
@@ -36,11 +36,52 @@ jobs:
           build-essential \
           flex \
           gcc-aarch64-linux-gnu \
-          lz4
+          git \
+          lz4 \
+          wget
+
+      - name: Fetch PHY firmware
+        run: |
+           wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.12.bin
+           chmod +x firmware-imx-8.12.bin
+           ./firmware-imx-8.12.bin --auto-accept
+           for f in lpddr4_pmu_train_1d_dmem.bin  \
+               lpddr4_pmu_train_1d_imem.bin  \
+               lpddr4_pmu_train_2d_dmem.bin  \
+               lpddr4_pmu_train_2d_imem.bin; \
+           do \
+               cp firmware-imx-8.12/firmware/ddr/synopsys/${f} \
+                  firmware/${f}; \
+           done
+           for f in ddr4_dmem_1d_201810.bin  \
+               ddr4_imem_1d_201810.bin  \
+               ddr4_dmem_2d_201810.bin  \
+               ddr4_imem_2d_201810.bin; \
+           do \
+               cp firmware-imx-8.12/firmware/ddr/synopsys/${f} \
+                  firmware/${f%_201810.bin}.bin; \
+           done
+           rm firmware-imx-8.12.bin
+           rm -rf firmware-imx-8.12
 
       - name: Compile
         run: |
           export ARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu-
+          rm -rf imx-atf
+          git clone http://source.codeaurora.org/external/imx/imx-atf
+          cd imx-atf
+          git checkout imx_5.4.47_2.2.0
+          make PLAT=imx8mn bl31
+          make PLAT=imx8mm bl31
+          make PLAT=imx8mp bl31
+          make PLAT=imx8mq bl31
+          cp build/imx8mn/release/bl31.bin ../firmware/imx8mn-bl31.bin
+          cp build/imx8mm/release/bl31.bin ../firmware/imx8mm-bl31.bin
+          cp build/imx8mp/release/bl31.bin ../firmware/imx8mp-bl31.bin
+          cp build/imx8mq/release/bl31.bin ../firmware/imx8mq-bl31.bin
+          cd ..
+          ls -la firmware
+          rm -rf imx-atf
           make O=build ${{matrix.defconfig}}_defconfig
           make O=build
