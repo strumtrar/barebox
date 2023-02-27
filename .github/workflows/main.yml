@@ -7,7 +7,8 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        defconfig: [imx_v7, imx_v8, socfpga, socfpga-xload, socfpga-xload-2, socfpga-arria10, zynq]
+        defconfig: [imx_v7, socfpga, socfpga-xload, socfpga-xload-2, socfpga-arria10, zynq]
+        defconfig64: [imx_v8, zynqmp]
     steps:
       - uses: actions/checkout@v3
       - name: Cache build
@@ -18,6 +19,7 @@ jobs:
         with:
           path: |
             build
+            build64
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/barebox') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
@@ -36,11 +38,19 @@ jobs:
           build-essential \
           flex \
           gcc-arm-linux-gnueabihf \
+          gcc-aarch64-linux-gnu \
           lz4
 
-      - name: Compile SoCFPGA
+      - name: Compile ARM
         run: |
           export ARCH=arm
           export CROSS_COMPILE=arm-linux-gnueabihf-
           make O=build ${{matrix.defconfig}}_defconfig
           make O=build
+
+      - name: Compile ARM64
+        run: |
+          export ARCH=arm64
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          make O=build64 ${{matrix.defconfig64}_defconfig
+          make O=build64
