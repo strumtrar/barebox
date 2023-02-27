@@ -52,5 +52,5 @@ jobs:
         run: |
           export ARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu-
-          make O=build64 ${{matrix.defconfig64}_defconfig
+          make O=build64 ${{matrix.defconfig64}}_defconfig
           make O=build64
