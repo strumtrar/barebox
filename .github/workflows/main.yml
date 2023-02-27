@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        defconfig: [imx_v7, imx_v8, socfpga, socfpga-xload, socfpga-xload-2, socfpga-arria10, zynq, zynqmp]
+        defconfig: [imx_v7, imx_v8, socfpga, socfpga-xload, socfpga-xload-2, socfpga-arria10, zynq]
     steps:
       - uses: actions/checkout@v3
       - name: Cache build
