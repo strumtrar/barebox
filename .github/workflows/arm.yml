@@ -44,3 +44,11 @@ jobs:
           export CROSS_COMPILE=arm-linux-gnueabihf-
           make O=build ${{matrix.defconfig}}_defconfig
           make O=build
+          ls -la build/images/
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: arm32
+          path: |
+            build/images/barebox-*.img

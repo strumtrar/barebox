@@ -85,3 +85,10 @@ jobs:
           rm -rf imx-atf
           make O=build ${{matrix.defconfig}}_defconfig
           make O=build
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: arm64
+          path: |
+            build/images/barebox-*.img
