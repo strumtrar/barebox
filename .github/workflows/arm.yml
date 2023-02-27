@@ -1,0 +1,46 @@
+name: main
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        defconfig: [imx_v7, socfpga, socfpga-xload, socfpga-xload-2, socfpga-arria10, zynq]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache build
+        id: cache-build
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-build-dir
+        with:
+          path: |
+            build
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/barebox') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - if: ${{ steps.cache-build.outputs.cache-hit != 'true' }}
+        continue-on-error: true
+        run: ls -la
+
+      - name: Install Tools
+        run: |
+          apt-get update
+          apt-get install -y \
+          bison \
+          build-essential \
+          flex \
+          gcc-arm-linux-gnueabihf \
+          lz4
+
+      - name: Compile
+        run: |
+          export ARCH=arm
+          export CROSS_COMPILE=arm-linux-gnueabihf-
+          make O=build ${{matrix.defconfig}}_defconfig
+          make O=build
