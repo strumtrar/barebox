@@ -1,6 +1,10 @@
 name: arm32
 
-on: [push, pull_request]
+on: 
+  push:
+  pull_request:
+  schedule:
+    - cron: '42 23 * * 0,2,4'
 
 jobs:
   build:
