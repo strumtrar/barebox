@@ -73,7 +73,7 @@ jobs:
           export ARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu-
           rm -rf imx-atf
-          git clone http://source.codeaurora.org/external/imx/imx-atf
+          git clone https://github.com/nxp-imx/imx-atf
           cd imx-atf
           git checkout imx_5.4.47_2.2.0
           make PLAT=imx8mn bl31
