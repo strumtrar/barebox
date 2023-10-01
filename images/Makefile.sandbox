@@ -5,6 +5,7 @@ FILE_barebox = sandbox_main.elf
 sandbox-$(CONFIG_SANDBOX) += barebox
 
 fuzzer-$(CONFIG_FITIMAGE)	+= fit
+fuzzer-y			+= printf
 
 ifeq ($(CONFIG_SANDBOX),y)
 
