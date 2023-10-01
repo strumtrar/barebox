@@ -4,10 +4,7 @@ pblb-$(CONFIG_SANDBOX) += sandbox_main
 FILE_barebox = sandbox_main.elf
 sandbox-$(CONFIG_SANDBOX) += barebox
 
-pblb-$(CONFIG_FUZZ_EXTERNAL) += main
-FILE_fuzz-barebox = main.elf
-LDFLAGS_main = -fsanitize=fuzzer
-sandbox-$(CONFIG_FUZZ_EXTERNAL) += fuzz-barebox
+fuzzer-$(CONFIG_FITIMAGE)	+= fit
 
 ifeq ($(CONFIG_SANDBOX),y)
 
