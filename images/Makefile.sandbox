@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+pblb-$(CONFIG_SANDBOX) += sandbox_main
+FILE_barebox = sandbox_main.elf
+sandbox-$(CONFIG_SANDBOX) += barebox
+
+ifeq ($(CONFIG_SANDBOX),y)
+
+quiet_cmd_elf__ = LD      $@
+      cmd_elf__ = $(CC) -o $@ $(BAREBOX_LDFLAGS) \
+	-Wl,-T,$(pbl-lds) -Wl,--defsym=main=$(2) -Wl,--whole-archive \
+	$(obj)/../$(BAREBOX_PROPER) $(BAREBOX_PBL_OBJS) -Wl,--no-whole-archive \
+	-lrt -pthread $(SANDBOX_LIBS) $(LDFLAGS_$(@F))
+
+image-y += $(sandbox-y)
+
+.SECONDEXPANSION:
+$(patsubst %,$(obj)/%, $(sandbox-y)): %: $(obj)/$$(FILE_$$(@F)) FORCE
+	$(Q)if [ -z $(FILE_$(@F)) ]; then echo "FILE_$(@F) empty!"; false; fi
+	$(call if_changed,symlink)
+
+endif
