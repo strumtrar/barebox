@@ -79,12 +79,13 @@ static void rawmode(void)
 static void cookmode(void)
 {
 	fflush(stdout);
-	tcsetattr(0, TCSANOW, &term_orig);
+	if (erase_char)
+		tcsetattr(0, TCSANOW, &term_orig);
 }
 
 static char *stickypage_path;
 
-static void prepare_exit(void)
+void __attribute((destructor)) prepare_exit(void)
 {
 	cookmode();
 	if (stickypage_path)
@@ -138,7 +139,6 @@ uint64_t linux_get_time(void)
 
 void __attribute__((noreturn)) linux_exit(void)
 {
-	prepare_exit();
 	exit(0);
 }
 
@@ -542,6 +542,8 @@ int main(int argc, char *argv[])
 	int loglevel = -1, fdno = 0, envno = 0, option_index = 0;
 	char *new_cmdline;
 	char *aux;
+
+	tcgetattr(0, &term_orig);
 
 #ifdef CONFIG_ASAN
 	__sanitizer_set_death_callback(prepare_exit);
