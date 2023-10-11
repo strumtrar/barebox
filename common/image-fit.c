@@ -694,6 +694,19 @@ int fit_open_image(struct fit_handle *handle, void *configuration,
 	return 0;
 }
 
+struct device_node *fit_unflatten_fdt(struct fit_handle *handle, void *configuration)
+{
+	const void *of_tree;
+	unsigned long of_size;
+	int ret;
+
+	ret = fit_open_image(handle, configuration, "fdt", &of_tree, &of_size);
+	if (ret)
+		return ERR_PTR(ret);
+
+	return of_unflatten_dtb(of_tree, of_size);
+}
+
 static int fit_config_verify_signature(struct fit_handle *handle, struct device_node *conf_node)
 {
 	struct device_node *sig_node;

@@ -32,6 +32,7 @@ int fit_has_image(struct fit_handle *handle, void *configuration,
 int fit_open_image(struct fit_handle *handle, void *configuration,
 		   const char *name, const void **outdata,
 		   unsigned long *outsize);
+struct device_node *fit_unflatten_fdt(struct fit_handle *handle, void *configuration);
 int fit_get_image_address(struct fit_handle *handle, void *configuration,
 			  const char *name, const char *property,
 			  unsigned long *address);

@@ -435,15 +435,7 @@ void *bootm_get_devicetree(struct image_data *data)
 		from_fit = false;
 
 	if (from_fit) {
-		const void *of_tree;
-		unsigned long of_size;
-
-		ret = fit_open_image(data->os_fit, data->fit_config, "fdt",
-				     &of_tree, &of_size);
-		if (ret)
-			return ERR_PTR(ret);
-
-		data->of_root_node = of_unflatten_dtb(of_tree, of_size);
+		data->of_root_node = fit_unflatten_fdt(data->os_fit, data->fit_config);
 	} else if (data->oftree_file) {
 		size_t size;
 
