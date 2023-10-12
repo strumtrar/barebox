@@ -6,6 +6,7 @@ sandbox-$(CONFIG_SANDBOX) += barebox
 
 fuzzer-$(CONFIG_FITIMAGE)	+= fit
 fuzzer-y			+= printf
+fuzzer-$(CONFIG_FILETYPE)	+= filetype
 
 ifeq ($(CONFIG_SANDBOX),y)
 
