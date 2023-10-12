@@ -13,6 +13,8 @@ config FUZZ_EXTERNAL
 
 config FUZZ
 	bool "fuzz tests"
+	select RAMDISK_BLK
+	select DISK
 	help
 	  Enable fuzz tests
 
