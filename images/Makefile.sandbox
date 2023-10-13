@@ -7,6 +7,7 @@ sandbox-$(CONFIG_SANDBOX) += barebox
 fuzzer-$(CONFIG_FITIMAGE)	+= fit
 fuzzer-y			+= printf
 fuzzer-$(CONFIG_FILETYPE)	+= filetype
+fuzzer-$(CONFIG_PARTITION)	+= partitions
 
 ifeq ($(CONFIG_SANDBOX),y)
 
