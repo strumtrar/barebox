@@ -8,6 +8,7 @@ fuzzer-$(CONFIG_FITIMAGE)	+= fit
 fuzzer-y			+= printf
 fuzzer-$(CONFIG_FILETYPE)	+= filetype
 fuzzer-$(CONFIG_PARTITION)	+= partitions
+fuzzer-$(CONFIG_FS)		+= fs
 
 ifeq ($(CONFIG_SANDBOX),y)
 

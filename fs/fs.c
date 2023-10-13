@@ -25,6 +25,7 @@
 #include <fcntl.h>
 #include <xfuncs.h>
 #include <init.h>
+#include <fuzz.h>
 #include <module.h>
 #include <libbb.h>
 #include <magicvar.h>
@@ -3360,6 +3361,51 @@ static int automount_mount(struct dentry *dentry)
 	return 0;
 }
 #endif /* CONFIG_FS_AUTOMOUNT */
+
+static int fuzz_fs_ops(struct block_device *ramdisk)
+{
+	const char *path;
+	struct dirent *d;
+	DIR *dir;
+
+	path = cdev_mount_default(&ramdisk->cdev, NULL);
+	if (IS_ERR(path))
+		return PTR_ERR(path);
+
+	dir = opendir(path);
+	if (WARN_ON(!dir))
+		return -errno;
+
+	while ((d = readdir(dir))) {
+		ssize_t bytes_read;
+		struct stat st;
+		u8 buf[1024];
+		int fd;
+
+		if (!strcmp(d->d_name, "."))
+			continue;
+		if (!strcmp(d->d_name, ".."))
+			continue;
+
+		fd = open_and_lseek(d->d_name, O_RDONLY, 10);
+		if (fd < 0)
+			fd = open(d->d_name, O_RDONLY);
+		if (fd < 0)
+			continue;
+
+		fstat(fd, &st);
+
+		while ((bytes_read = read(fd, buf, sizeof(buf))) > 0)
+			;
+
+		close(fd);
+	}
+
+	closedir(dir);
+
+	return 0;
+}
+fuzz_test_ramdisk("fs", fuzz_fs_ops);
 
 #ifdef DEBUG
 
