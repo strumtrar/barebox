@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <init.h>
 #include <memory.h>
+#include <fuzz.h>
 #include <linux/sizes.h>
 #include <linux/ctype.h>
 #include <linux/log2.h>
@@ -342,6 +343,18 @@ struct device_node *of_unflatten_dtb_const(const void *infdt, int size)
 {
 	return __of_unflatten_dtb(infdt, size, true);
 }
+
+static int fuzz_dtb(const u8 *data, size_t size)
+{
+	struct device_node *np;
+
+	np = of_unflatten_dtb_const(data, size);
+	if (!IS_ERR(np))
+		of_delete_node(np);
+
+	return 0;
+}
+fuzz_test("dtb", fuzz_dtb);
 
 struct fdt {
 	void *dt;
