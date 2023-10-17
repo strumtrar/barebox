@@ -119,11 +119,13 @@ static int regulator_probe(struct device *dev)
 {
 	size_t nregulators = ARRAY_SIZE(test_pmic_reg);
 	struct device_node *np = dev->of_node;
-	struct test_regulator *priv;
+	static struct test_regulator priv;
 	int ret, i;
 
-	priv = xzalloc(sizeof(*priv));
-	priv->dev = dev;
+	if (priv.dev == dev)
+		return -EBUSY;
+
+	priv.dev = dev;
 
 	total_tests += 2;
 	failed_tests += 2;
@@ -139,7 +141,7 @@ static int regulator_probe(struct device *dev)
 	ok(ret == TEST_REGULATORS_NUM);
 
 	for (i = 0; i < nregulators; i++) {
-		ret = test_regulator_register(priv, i, &test_reg_matches[i],
+		ret = test_regulator_register(&priv, i, &test_reg_matches[i],
 					      &test_pmic_reg[i]);
 		ok(ret == 0);
 		if (ret < 0)
