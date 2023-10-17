@@ -7,4 +7,31 @@ if TEST
 
 source "test/self/Kconfig"
 
+config FUZZ_EXTERNAL
+	bool "link against libfuzz"
+	depends on SANDBOX && CC_IS_CLANG
+
+config FUZZ
+	bool "fuzz tests"
+	help
+	  Enable fuzz tests
+
+if FUZZ
+
+config CMD_FUZZ
+	bool "fuzz command"
+	depends on COMMAND_SUPPORT
+	default y
+	help
+	  Command to run enabled barebox fuzz tests.
+	  If run without arguments, all tests are run
+
+	  Usage: fuzz [-lf] [test]
+
+	  Options:
+	    -l        list available tests
+	    -f FILE   use FILE as fuzz input
+
+endif
+
 endif
