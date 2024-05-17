@@ -9,6 +9,25 @@
 #
 source "arch/$(SRCARCH)/Kconfig"
 
+config ARCH_HAS_CTRLC
+	bool
+
+#
+# Select this option if the architecture assumes DMA devices are coherent
+# by default.
+#
+config ARCH_DMA_DEFAULT_COHERENT
+	bool
+
+config ARCH_HAS_ASAN_FIBER_API
+	bool
+
+config ARCH_HAS_FORTIFY_SOURCE
+	bool
+	help
+	  An architecture should select this when it can successfully
+	  build and run with CONFIG_FORTIFY_SOURCE.
+
 config ARCH_LINUX_NAME
 	string
 	default "$(SRCARCH)"
