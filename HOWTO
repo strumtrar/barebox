@@ -1,0 +1,1 @@
+./build/images/fuzz-dtb -rss_limit_mb=10000 -max_len=128000 ../fuzz-corpus/fit
