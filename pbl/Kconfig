@@ -28,6 +28,9 @@ config PBL_SINGLE_IMAGE
 
 if PBL_IMAGE
 
+config PBL_STRING_FUNCTIONS
+	def_bool !SANDBOX
+
 config USE_COMPRESSED_DTB
 	bool
 	depends on ARM || RISCV
