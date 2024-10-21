@@ -94,7 +94,8 @@ static void rawmode(void)
 	tcsetattr(0, TCSANOW, &term_vi);
 }
 
-static void cookmode(void)
+void cookmode(void);
+void cookmode(void)
 {
 	fflush(stdout);
 	if (erase_char)
@@ -580,8 +581,6 @@ static int normal_main(int argc, char *argv[])
 	int loglevel = -1, fdno = 0, envno = 0, option_index = 0;
 	char *new_cmdline;
 	char *aux;
-
-	tcgetattr(0, &term_orig);
 
 #ifdef CONFIG_ASAN
 	__sanitizer_set_death_callback(prepare_exit);
