@@ -23,6 +23,7 @@ char *xvasprintf(const char *fmt, va_list ap) __returns_nonnull;
 wchar_t *xstrdup_wchar(const wchar_t *src);
 wchar_t *xstrdup_char_to_wchar(const char *src);
 char *xstrdup_wchar_to_char(const wchar_t *src);
+void __noreturn enomem_panic(size_t size);
 
 #else
 
@@ -39,6 +40,7 @@ static inline char *xvasprintf(const char *fmt, va_list ap) { BUG(); }
 static inline wchar_t *xstrdup_wchar(const wchar_t *src) { BUG(); }
 static inline wchar_t *xstrdup_char_to_wchar(const char *src) { BUG(); }
 static inline char *xstrdup_wchar_to_char(const wchar_t *src) { BUG(); }
+static inline void enomem_panic(size_t size) { BUG(); }
 #endif
 
 #endif /* __XFUNCS_H */

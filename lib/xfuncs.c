@@ -22,7 +22,7 @@
 #include <module.h>
 #include <wchar.h>
 
-static void __noreturn enomem_panic(size_t size)
+void __noreturn enomem_panic(size_t size)
 {
 	pr_emerg("out of memory\n");
 	if (size)
@@ -32,6 +32,7 @@ static void __noreturn enomem_panic(size_t size)
 
 	panic("out of memory");
 }
+EXPORT_SYMBOL(enomem_panic);
 
 void *xmalloc(size_t size)
 {

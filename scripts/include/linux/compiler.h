@@ -23,6 +23,10 @@
 # define __packed		__attribute__((__packed__))
 #endif
 
+#ifndef __noreturn
+# define __noreturn		__attribute__((noreturn))
+#endif
+
 #ifndef __force
 # define __force
 #endif
