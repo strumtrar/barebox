@@ -31,6 +31,8 @@
 #include <featctrl.h>
 #include <linux/clk/clk-conf.h>
 
+#include "base.h"
+
 #ifdef CONFIG_DEBUG_PROBES
 #define pr_report_probe		pr_info
 #else
@@ -162,7 +164,7 @@ int device_probe(struct device *dev)
 		list_move(&dev->active, &deferred);
 
 		dev_dbg(dev, "probe deferred\n");
-		return -EPROBE_DEFER;
+		goto out;
 	case -ENODEV:
 	case -ENXIO:
 		dev_dbg(dev, "probe failed: %pe\n", ERR_PTR(ret));
@@ -174,6 +176,8 @@ int device_probe(struct device *dev)
 
 	list_del_init(&dev->active);
 
+out:
+	devres_release_all(dev, false);
 	return ret;
 }
 
@@ -266,6 +270,7 @@ int register_device(struct device *new_device)
 	INIT_LIST_HEAD(&new_device->active);
 	INIT_LIST_HEAD(&new_device->bus_list);
 	INIT_LIST_HEAD(&new_device->class_list);
+	INIT_LIST_HEAD(&new_device->devres_head);
 
 	if (new_device->bus) {
 		if (!new_device->parent)
@@ -298,7 +303,7 @@ int unregister_device(struct device *old_dev)
 	dev_remove_parameters(old_dev);
 
 	if (old_dev->driver)
-		device_remove(old_dev);
+		__device_remove(old_dev, false);
 
 	list_for_each_entry_safe(alias, at, &device_alias_list, list) {
 		if(alias->dev == old_dev)
@@ -447,7 +452,7 @@ void unregister_driver(struct driver *drv)
 
 	bus_for_each_device(drv->bus, dev) {
 		if (dev->driver == drv) {
-			device_remove(dev);
+			__device_remove(dev, false);
 			dev->driver = NULL;
 			list_del(&dev->active);
 			INIT_LIST_HEAD(&dev->active);
@@ -684,25 +689,30 @@ int dev_add_alias(struct device *dev, const char *fmt, ...)
 }
 EXPORT_SYMBOL_GPL(dev_add_alias);
 
-bool device_remove(struct device *dev)
+bool __device_remove(struct device *dev, bool shutdown)
 {
-	if (dev->bus && dev->bus->remove)
-		dev->bus->remove(dev);
-	else if (dev->driver->remove)
-		dev->driver->remove(dev);
-	else
-		return false; /* nothing to do */
+	bool remove_called = false;
 
-	return true;
+	if (dev->bus && dev->bus->remove) {
+		dev->bus->remove(dev);
+		remove_called = true;
+	} else if (dev->driver->remove) {
+		dev->driver->remove(dev);
+		remove_called = true;
+	}
+
+	devres_release_all(dev, shutdown);
+
+	return remove_called;
 }
-EXPORT_SYMBOL_GPL(device_remove);
+EXPORT_SYMBOL_GPL(__device_remove);
 
 static void devices_shutdown(void)
 {
 	struct device *dev;
 
 	list_for_each_entry(dev, &active_device_list, active) {
-		if (device_remove(dev))
+		if (__device_remove(dev, true))
 			pr_report_probe("%*sremove-> %s\n", 1 * 4, "", dev_name(dev));
 		dev->driver = NULL;
 	}

@@ -107,6 +107,16 @@ config DEBUG_RESOURCES
 
 	  If unsure, say N.
 
+config DEBUG_DEVRES
+	bool "Managed device resources verbose debug messages"
+	depends on DEVRES
+	help
+	  If set to non-zero, devres debug messages are printed.
+	  Select this if you are having a problem with devres or
+	  want to debug resource management for a managed device
+
+	  If you are unsure about this, Say N here.
+
 config PBL_BREAK
 	bool "Execute software break on pbl start"
 	depends on ARM && (!CPU_32v4T && !ARCH_TEGRA)

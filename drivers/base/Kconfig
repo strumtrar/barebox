@@ -9,4 +9,8 @@ config FEATURE_CONTROLLER
 config SOC_BUS
 	bool
 
+config DEVRES
+	bool "Managed device resources"
+	default y
+
 source "drivers/base/regmap/Kconfig"

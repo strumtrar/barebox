@@ -5,6 +5,7 @@ obj-y	+= platform.o
 obj-y	+= resource.o
 obj-y	+= class.o
 obj-y	+= regmap/
+obj-$(CONFIG_DEVRES)	+= devres.o
 
 obj-$(CONFIG_PM_GENERIC_DOMAINS) += power.o
 obj-$(CONFIG_FEATURE_CONTROLLER) += featctrl.o

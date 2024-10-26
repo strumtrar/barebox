@@ -31,6 +31,11 @@ static inline void *kmalloc(size_t size, gfp_t flags)
 	return flags & __GFP_ZERO ? dma_zalloc(size) : dma_alloc(size);
 }
 
+static inline size_t kmalloc_size_roundup(size_t size)
+{
+	return ALIGN(size, DMA_ALIGNMENT);
+}
+
 struct kmem_cache {
 	unsigned int size;
 	void (*ctor)(void *);

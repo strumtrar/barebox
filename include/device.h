@@ -47,6 +47,8 @@ struct device {
 	enum dev_dma_coherence dma_coherent;
 
 	struct resource *resource;
+	struct list_head devres_head;
+
 	int num_resources;
 
 	void *platform_data; /*! board specific information about this device */
