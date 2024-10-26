@@ -4,7 +4,7 @@
  */
 
 #include <common.h>
-#include <driver.h>
+#include <linux/device.h>
 #include <init.h>
 #include <malloc.h>
 #include <mach/linux.h>
@@ -66,8 +66,9 @@ static int sdlfb_probe(struct device *dev)
 	fb->fbops = &sdlfb_ops;
 
 	fb->dev.parent = dev;
-	fb->screen_base = xzalloc(fb->xres * fb->yres *
-				  fb->bits_per_pixel >> 3);
+	fb->screen_base = devm_xzalloc(dev, fb->xres * fb->yres *
+				       fb->bits_per_pixel >> 3,
+				       GFP_KERNEL);
 
 	/* add runtime hardware info */
 	dev->priv = fb;

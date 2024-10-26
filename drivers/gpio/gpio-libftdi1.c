@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <linux/device.h>
 #include <errno.h>
 #include <gpio.h>
 #include <init.h>
@@ -88,7 +89,7 @@ static int libftdi1_gpio_probe(struct device *dev)
 	if (!ftbb)
 		return -EIO;
 
-	gpio = xzalloc(sizeof(*gpio));
+	gpio = devm_xzalloc(dev, sizeof(*gpio), GFP_KERNEL);
 
 	gpio->ftbb = ftbb;
 

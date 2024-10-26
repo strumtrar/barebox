@@ -2,7 +2,7 @@
 
 #include <common.h>
 #include <errno.h>
-#include <driver.h>
+#include <linux/device.h>
 #include <mach/linux.h>
 #include <linux/time.h>
 #include <linux/math64.h>
@@ -46,17 +46,15 @@ static int sandbox_sound_probe(struct device *dev)
 	struct sound_card *card;
 	int ret;
 
-	priv = xzalloc(sizeof(*priv));
+	priv = devm_xzalloc(dev, sizeof(*priv), GFP_KERNEL);
 
 	card = &priv->card;
 	card->name = "SDL-Audio";
 	card->beep = sandbox_sound_beep;
 
 	ret = sdl_sound_init(SAMPLERATE);
-	if (ret) {
-		ret = -ENODEV;
-		goto free_priv;
-	}
+	if (ret)
+		return -ENODEV;
 
 	ret = sound_card_register(card);
 	if (ret)
@@ -67,8 +65,6 @@ static int sandbox_sound_probe(struct device *dev)
 
 sdl_sound_close:
 	sdl_sound_close();
-free_priv:
-	free(priv);
 
 	return ret;
 }
