@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+KBUILD_OUTPUT=${KBUILD_OUTPUT:-.}
+LLVM_PROFILE_FILE=${LLVM_PROFILE_FILE:-default.profraw}
+LLVM_PROFILE_DATA=${LLVM_PROFILE_FILE%.profraw}.profdata
+
+if [ -z "$LLVM" ]; then
+	echo "Coverage information only available for LLVM at the moment" >&2
+	exit 1
+fi
+
+$PROFDATA merge -sparse ${LLVM_PROFILE_FILE} -o ${LLVM_PROFILE_DATA}
+$COV export --format=lcov ${KBUILD_OUTPUT}/barebox \
+	-instr-profile ${LLVM_PROFILE_DATA} > ${KBUILD_OUTPUT}/coverage.info
+
+$GENHTML -o ${KBUILD_OUTPUT}/coverage_html ${KBUILD_OUTPUT}/coverage.info
