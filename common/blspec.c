@@ -314,12 +314,13 @@ static bool entry_is_of_compatible(struct blspec_entry *entry)
 {
 	const char *devicetree;
 	const char *abspath;
-	int ret;
+	int compatlen, ret;
 	struct device_node *barebox_root;
 	size_t size;
 	void *fdt;
-	const char *compat;
+	const char *machine;
 	char *filename;
+	const char *compats;
 
 	/* If the entry doesn't specify a devicetree we are compatible */
 	devicetree = blspec_entry_var_get(entry, "devicetree");
@@ -334,7 +335,7 @@ static bool entry_is_of_compatible(struct blspec_entry *entry)
 	if (!barebox_root)
 		return true;
 
-	ret = of_property_read_string(barebox_root, "compatible", &compat);
+	ret = of_property_read_string(barebox_root, "compatible", &machine);
 	if (ret)
 		return false;
 
@@ -351,7 +352,8 @@ static bool entry_is_of_compatible(struct blspec_entry *entry)
 		goto out;
 	}
 
-	if (fdt_machine_is_compatible(fdt, size, compat)) {
+	compats = fdt_machine_get_compatible(fdt, size, &compatlen);
+	if (compats && fdt_string_is_compatible(compats, compatlen, machine)) {
 		ret = true;
 		goto out;
 	}

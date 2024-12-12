@@ -739,8 +739,8 @@ static int fit_fdt_is_compatible(struct fit_handle *handle,
 {
 	const char *reason = "malformed";
 	struct device_node *image;
-	const char *unit = "fdt";
-	int data_len;
+	const char *compats, *unit = "fdt";
+	int compatlen, data_len;
 	const void *data;
 	int ret;
 
@@ -772,7 +772,9 @@ static int fit_fdt_is_compatible(struct fit_handle *handle,
 		goto err;
 	}
 
-	return fdt_machine_is_compatible(data, data_len, machine);
+	compats = fdt_machine_get_compatible(data, data_len, &compatlen);
+	if (compats)
+		return fdt_string_is_compatible(compats, compatlen, machine);
 err:
 	pr_warn("skipping %s configuration \"%pOF\"\n",
 		reason, child);

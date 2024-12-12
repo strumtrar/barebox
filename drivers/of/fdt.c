@@ -692,11 +692,12 @@ void fdt_print_reserve_map(const void *__fdt)
 	}
 }
 
-static int fdt_string_is_compatible(const char *haystack, int haystack_len,
-				    const char *needle, int needle_len)
+int fdt_string_is_compatible(const char *haystack, int haystack_len,
+			     const char *needle)
 {
 	const char *p;
 	int index = 0;
+	int needle_len = strlen(needle);
 
 	while (haystack_len >= needle_len) {
 		if (memcmp(needle, haystack, needle_len + 1) == 0)
@@ -713,7 +714,8 @@ static int fdt_string_is_compatible(const char *haystack, int haystack_len,
 	return 0;
 }
 
-int fdt_machine_is_compatible(const struct fdt_header *fdt, size_t fdt_size, const char *compat)
+const char *fdt_machine_get_compatible(const struct fdt_header *fdt, size_t fdt_size,
+				       int *compatlen)
 {
 	uint32_t tag;
 	const struct fdt_property *fdt_prop;
@@ -724,11 +726,10 @@ int fdt_machine_is_compatible(const struct fdt_header *fdt, size_t fdt_size, con
 	struct fdt_header f;
 	int ret, len;
 	int expect = FDT_BEGIN_NODE;
-	int compat_len = strlen(compat);
 
 	ret = fdt_parse_header(fdt, fdt_size, &f);
 	if (ret < 0)
-		return 0;
+		return NULL;
 
 	dt_struct = f.off_dt_struct;
 	dt_strings = (const void *)fdt + f.off_dt_strings;
@@ -736,11 +737,11 @@ int fdt_machine_is_compatible(const struct fdt_header *fdt, size_t fdt_size, con
 	while (1) {
 		const __be32 *tagp = (const void *)fdt + dt_struct;
 		if (!dt_ptr_ok(fdt, tagp))
-			return 0;
+			return NULL;
 
 		tag = be32_to_cpu(*tagp);
 		if (tag != FDT_NOP && tag != expect)
-			return 0;
+			return NULL;
 
 		switch (tag) {
 		case FDT_BEGIN_NODE:
@@ -748,7 +749,7 @@ int fdt_machine_is_compatible(const struct fdt_header *fdt, size_t fdt_size, con
 
 			/* The root node must have an empty name */
 			if (fnh->name[0] != '\0')
-				return 0;
+				return NULL;
 
 			dt_struct = dt_struct_advance(&f, dt_struct,
 					sizeof(struct fdt_node_header) + 1);
@@ -773,7 +774,7 @@ int fdt_machine_is_compatible(const struct fdt_header *fdt, size_t fdt_size, con
 
 			name = dt_string(&f, dt_strings, fdt32_to_cpu(fdt_prop->nameoff));
 			if (!name)
-				return 0;
+				return NULL;
 
 			if (strcmp(name, "compatible")) {
 				dt_struct = dt_struct_advance(&f, dt_struct,
@@ -781,19 +782,21 @@ int fdt_machine_is_compatible(const struct fdt_header *fdt, size_t fdt_size, con
 				break;
 			}
 
-			return fdt_string_is_compatible(fdt_prop->data, len, compat, compat_len);
+			if (compatlen)
+				*compatlen = len;
+			return fdt_prop->data;
 
 		case FDT_NOP:
 			dt_struct = dt_struct_advance(&f, dt_struct, FDT_TAGSIZE);
 			break;
 
 		default:
-			return 0;
+			return NULL;
 		}
 
 		if (!dt_struct)
-			return 0;
+			return NULL;
 	}
 
-	return 0;
+	return NULL;
 }

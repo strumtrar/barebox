@@ -64,7 +64,10 @@ void of_clean_reserve_map(void);
 void fdt_add_reserve_map(void *fdt);
 void fdt_print_reserve_map(const void *fdt);
 
-int fdt_machine_is_compatible(const struct fdt_header *fdt, size_t fdt_size, const char *compat);
+const char *fdt_machine_get_compatible(const struct fdt_header *fdt, size_t fdt_size,
+				       int *compatlen);
+int fdt_string_is_compatible(const char *haystack, int haystack_len,
+			     const char *needle);
 
 
 struct device;
