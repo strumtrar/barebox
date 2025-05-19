@@ -1419,6 +1419,24 @@ endif
 	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
 	@echo  'For further info see the documentation'
 
+# Code Coverage
+# ---------------------------------------------------------------------------
+
+barebox.coverage_html: barebox.coverage-info
+	genhtml -o $@ $<
+
+barebox.coverage-info: default.profdata $(KBUILD_OUTPUT)/barebox
+	$(COV) export --format=lcov -instr-profile $^ >$@
+
+default.profdata: $(srctree)/default.profraw
+	$(PROFDATA) merge -sparse $< -o $@
+
+$(srctree)/default.profraw: barebox
+
+PHONY += coverage-html
+coverage-html: barebox.coverage_html
+	echo "HTML coverage generated to $(BUILD_OUTPUT)/$<"
+
 # Generate tags for editors
 # ---------------------------------------------------------------------------
 quiet_cmd_tags = GEN     $@
