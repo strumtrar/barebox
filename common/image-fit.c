@@ -848,6 +848,9 @@ static int fit_find_last_unit(struct fit_handle *handle,
 	struct device_node *child;
 	const char *unit = NULL;
 
+	if (!conf_node)
+		return 0;
+
 	for_each_child_of_node(conf_node, child)
 		unit = child->name;
 
