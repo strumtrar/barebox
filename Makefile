@@ -1425,7 +1425,7 @@ endif
 barebox.coverage_html: barebox.coverage-info
 	genhtml -o $@ $<
 
-barebox.coverage-info: default.profdata $(KBUILD_OUTPUT)/barebox
+barebox.coverage-info: default.profdata $(objtree)/barebox
 	$(COV) export --format=lcov -instr-profile $^ >$@
 
 default.profdata: $(srctree)/default.profraw
@@ -1435,7 +1435,7 @@ $(srctree)/default.profraw: barebox
 
 PHONY += coverage-html
 coverage-html: barebox.coverage_html
-	echo "HTML coverage generated to $(BUILD_OUTPUT)/$<"
+	echo "HTML coverage generated to $(objtree)/$<"
 
 # Generate tags for editors
 # ---------------------------------------------------------------------------
