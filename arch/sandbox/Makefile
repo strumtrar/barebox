@@ -72,7 +72,7 @@ LIBARCH-y = $(UNAME_M)
 LIBARCH-$(CONFIG_SANDBOX_LINUX_I386) = i386
 
 KBUILD_CPPFLAGS += -fsanitize=fuzzer-no-link
-SANDBOX_LIBS += -Wl,-Bstatic -L$(shell $(CC) -print-runtime-dir) \
+SANDBOX_LIBS += -Wl,-Bstatic -L$(CONFIG_CLANG_RUNTIME_DIR) \
 		-lclang_rt.fuzzer_no_main-$(LIBARCH-y) -Wl,-Bdynamic
 endif
 
