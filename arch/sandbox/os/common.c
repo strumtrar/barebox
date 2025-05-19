@@ -571,6 +571,44 @@ static inline size_t str_has_prefix(const char *str, const char *prefix)
 	return strncmp(str, prefix, len) == 0 ? len : 0;
 }
 
+static char *realpath_alloc(char *path)
+{
+	char *real;
+
+	real = malloc(PATH_MAX);
+	if (!real) {
+		perror("malloc");
+		exit(3);
+	}
+
+	if (!realpath(path, real)) {
+		perror("realpath");
+		exit(EXIT_FAILURE);
+	}
+
+	return real;
+}
+
+static void setup_external_fuzz_with_args(const char *fuzz, int *pargc, char **pargv[])
+{
+	char **argv = *pargv;
+	char *rlpath;
+	int ret;
+
+	rlpath = realpath_alloc(argv[0]);
+
+	asprintf(&argv[optind - 1], "%s/fuzz-%s", dirname(rlpath), fuzz);
+
+	*pargc -= optind - 1;
+	*pargv += optind - 1;
+
+	ret = setup_external_fuzz(fuzz, pargc, pargv);
+	if (ret) {
+		printf("unknown fuzz target '%s'\n", fuzz);
+		exit(ret);
+	}
+}
+
 static int normal_main(int argc, char *argv[])
 {
 	bool skip_opts = false;
@@ -729,18 +767,10 @@ static int normal_main(int argc, char *argv[])
 
 	barebox_register_console(fileno(stdin), fileno(stdout));
 
-	if (fuzz) {
-		argc -= optind - 1;
-		argv += optind - 1;
-
-		ret = setup_external_fuzz(fuzz, &argc, &argv);
-		if (ret) {
-			printf("unknown fuzz target '%s'\n", fuzz);
-			return ret;
-		}
-	} else {
+	if (fuzz)
+		setup_external_fuzz_with_args(fuzz, &argc, &argv);
+	else
 		rawmode();
-	}
 
 	if (loglevel >= 0)
 		barebox_loglevel = loglevel;
@@ -756,6 +786,7 @@ ENTRY_FUNCTION(sandbox_main, argc, argv)
 	char **args;
 	char *argv0;
 	size_t fuzz_off;
+	char *rlpath;
 
 	tcgetattr(0, &term_orig);
 
@@ -766,9 +797,10 @@ ENTRY_FUNCTION(sandbox_main, argc, argv)
 		if (!args)
 			exit(3);
 
-		args[0] = "barebox";
+		rlpath = realpath_alloc(argv[0]);
+		asprintf(&args[0], "%s/barebox", dirname(rlpath));
+
 		args[1] = "--fuzz";
-		args[2] = argv0 + fuzz_off;
 		args[2] = argv0 + fuzz_off;
 
 		memcpy(&args[3], &argv[1], argc * sizeof(*args));
