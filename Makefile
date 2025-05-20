@@ -1431,11 +1431,9 @@ barebox.coverage-info: default.profdata
 default.profdata: $(srctree)/default.profraw
 	$(PROFDATA) merge -sparse $< -o $@
 
-$(srctree)/default.profraw: barebox
-
 PHONY += coverage-html
 coverage-html: barebox.coverage_html
-	echo "HTML coverage generated to $(objtree)/$<"
+	@echo "HTML coverage generated to $(objtree)/$<"
 
 # Generate tags for editors
 # ---------------------------------------------------------------------------
