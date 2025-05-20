@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -6,13 +6,23 @@ KBUILD_OUTPUT=${KBUILD_OUTPUT:-.}
 LLVM_PROFILE_FILE=${LLVM_PROFILE_FILE:-default.profraw}
 LLVM_PROFILE_DATA=${LLVM_PROFILE_FILE%.profraw}.profdata
 
-if [ -z "$LLVM" ]; then
-	echo "Coverage information only available for LLVM at the moment" >&2
-	exit 1
+if [ -n "$LLVM" ]; then
+       if [[ "$LLVM" = */* ]]; then
+               LLVM_PREFIX=${LLVM_PREFIX:-${LLVM}}
+       elif [[ "$LLVM" = *-* ]]; then
+               LLVM_SUFFIX=${LLVM_SUFFIX:-${LLVM}}
+       fi
+
+       profdata=${LLVM_PREFIX}llvm-profdata${LLVM_SUFFIX}
+       cov=${LLVM_PREFIX}llvm-cov${LLVM_SUFFIX}
+
+       $profdata merge -sparse ${LLVM_PROFILE_FILE} -o ${LLVM_PROFILE_DATA}
+       $cov export --format=lcov ${KBUILD_OUTPUT}/barebox \
+               -instr-profile ${LLVM_PROFILE_DATA} > ${KBUILD_OUTPUT}/coverage.info
+
+else
+       lcov -o ${KBUILD_OUTPUT}/coverage.info -c \
+               --base-directory $KBUILD_OUTPUT --directory .
 fi
 
-$PROFDATA merge -sparse ${LLVM_PROFILE_FILE} -o ${LLVM_PROFILE_DATA}
-$COV export --format=lcov ${KBUILD_OUTPUT}/barebox \
-	-instr-profile ${LLVM_PROFILE_DATA} > ${KBUILD_OUTPUT}/coverage.info
-
-$GENHTML -o ${KBUILD_OUTPUT}/coverage_html ${KBUILD_OUTPUT}/coverage.info
+genhtml -o ${KBUILD_OUTPUT}/coverage_html ${KBUILD_OUTPUT}/coverage.info

@@ -1425,8 +1425,8 @@ endif
 barebox.coverage_html: barebox.coverage-info
 	genhtml -o $@ $<
 
-barebox.coverage-info: default.profdata | $(objtree)/barebox
-	$(COV) export --format=lcov -instr-profile $^ >$@
+barebox.coverage-info: default.profdata
+	$(COV) export --format=lcov -instr-profile $< $(objtree)/barebox >$@
 
 default.profdata: $(srctree)/default.profraw
 	$(PROFDATA) merge -sparse $< -o $@
