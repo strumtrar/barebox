@@ -599,6 +599,8 @@ static void setup_external_fuzz_with_args(const char *fuzz, int *pargc, char **p
 
 	asprintf(&argv[optind - 1], "%s/fuzz-%s", dirname(rlpath), fuzz);
 
+	free(rlpath);
+
 	*pargc -= optind - 1;
 	*pargv += optind - 1;
 
@@ -799,6 +801,8 @@ ENTRY_FUNCTION(sandbox_main, argc, argv)
 
 		rlpath = realpath_alloc(argv[0]);
 		asprintf(&args[0], "%s/barebox", dirname(rlpath));
+
+		free(rlpath);
 
 		args[1] = "--fuzz";
 		args[2] = argv0 + fuzz_off;
