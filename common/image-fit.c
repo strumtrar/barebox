@@ -1048,7 +1048,7 @@ static int fuzz_fit(const u8 *data, size_t size)
 	void *config;
 
 	handle.verbose = false;
-	handle.verify = false;
+	handle.verify = BOOTM_VERIFY_AVAILABLE;
 
 	handle.size = size;
 	handle.fit = data;
