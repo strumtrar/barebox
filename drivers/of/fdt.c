@@ -45,11 +45,15 @@ static inline uint32_t dt_struct_advance(struct fdt_header *f, uint32_t dt, uint
 	return dt;
 }
 
-static inline const char *dt_string(struct fdt_header *f, const char *strstart, uint32_t ofs)
+static inline const char *dt_string(struct fdt_header *f, const char *strstart, uint32_t ofs, uint32_t length)
 {
 	const char *str;
 
 	if (ofs > f->size_dt_strings)
+		return NULL;
+
+	/* sanity check: length can't be longer than totalsize */
+	if (length > f->totalsize)
 		return NULL;
 
 	str = strstart + ofs;
@@ -272,7 +276,7 @@ static struct device_node *__of_unflatten_dtb(const void *infdt, int size,
 			len = fdt32_to_cpu(fdt_prop->len);
 			nodep = fdt_prop->data;
 
-			name = dt_string(&f, dt_strings, fdt32_to_cpu(fdt_prop->nameoff));
+			name = dt_string(&f, dt_strings, fdt32_to_cpu(fdt_prop->nameoff), len);
 			if (!name || !node || is_reserved_name(name)) {
 				ret = -ESPIPE;
 				goto err;
@@ -785,7 +789,7 @@ const char *fdt_machine_get_compatible(const struct fdt_header *fdt, size_t fdt_
 			fdt_prop = (const void *)fdt + dt_struct;
 			len = fdt32_to_cpu(fdt_prop->len);
 
-			name = dt_string(&f, dt_strings, fdt32_to_cpu(fdt_prop->nameoff));
+			name = dt_string(&f, dt_strings, fdt32_to_cpu(fdt_prop->nameoff), len);
 			if (!name)
 				return NULL;
 
