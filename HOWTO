@@ -1,1 +1,2 @@
 ./build/images/fuzz-dtb -rss_limit_mb=10000 -max_len=128000 ../fuzz-corpus/fit
+./build/images/fuzz-fit -max_total_time=600 -rss_limit_mb=20000 -max_len=128000 -detect_leaks=0 ../fuzz-corpora/FIT
