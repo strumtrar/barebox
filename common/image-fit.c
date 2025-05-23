@@ -1077,6 +1077,7 @@ static int fuzz_fit(const u8 *data, size_t size)
 	fit_get_image_address(&handle, config, imgname, "load", &addr);
 	fit_get_image_address(&handle, config, imgname, "entry", &addr);
 
+	ret = fit_open_image(&handle, NULL, imgname, &outdata, &outsize);
 out:
 	__fit_close(&handle);
 
